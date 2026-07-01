@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Medicine MCQs</title>
+<style>
+  :root{
+    --bg: #f6f3ec;
+    --ink: #1f2a24;
+    --paper: #ffffff;
+    --line: #e3ddcf;
+    --accent: #b3542e;
+    --accent-deep: #7c3a1f;
+    --good: #2f7d5b;
+    --good-bg: #e4f3ec;
+    --bad: #b3392f;
+    --bad-bg: #fbe9e6;
+    --muted: #7a7163;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Segoe UI', Tahoma, Arial, sans-serif;
+    min-height:100vh;
+  }
+  .topbar{
+    background:var(--accent-deep);
+    color:#fdf8ef;
+    padding:22px 18px 18px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .topbar::after{
+    content:"";
+    position:absolute;
+    bottom:0; left:0; right:0;
+    height:6px;
+    background:repeating-linear-gradient(90deg, var(--accent) 0 24px, #e7b07e 24px 48px);
+  }
+  .topbar h1{
+    margin:0;
+    font-size:1.5rem;
+    letter-spacing:.5px;
+    font-weight:800;
+  }
+  .topbar p{
+    margin:6px 0 0;
+    font-size:.85rem;
+    color:#e7d9c2;
+  }
+  .wrap{
+    max-width:880px;
+    margin:0 auto;
+    padding:18px 14px 60px;
+  }
+  .stats-row{
+    display:flex;
+    gap:10px;
+    margin:14px 0 18px;
+    flex-wrap:wrap;
+  }
+  .stat-pill{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:8px 16px;
+    font-size:.8rem;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .stat-pill b{ color:var(--ink); font-size:.95rem; }
+
+  .chapters-nav{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(150px,1fr));
+    gap:10px;
+    margin-bottom:24px;
+  }
+  .chap-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px 12px;
+    cursor:pointer;
+    text-align:right;
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .chap-card::before{
+    content:"";
+    position:absolute;
+    top:0; right:0;
+    width:5px; height:100%;
+    background:var(--chap-color, var(--accent));
+  }
+  .chap-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,.08);
+    border-color:var(--chap-color, var(--accent));
+  }
+  .chap-card.active{
+    border-color:var(--chap-color, var(--accent));
+    box-shadow:0 0 0 2px var(--chap-color, var(--accent)) inset;
+  }
+  .chap-name{
+    font-weight:700;
+    font-size:.92rem;
+    color:var(--ink);
+    margin-bottom:4px;
+  }
+  .chap-count{
+    font-size:.75rem;
+    color:var(--muted);
+  }
+
+  .quiz-area{ display:none; }
+  .quiz-area.visible{ display:block; }
+
+  .quiz-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .back-btn{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:8px 14px;
+    font-size:.85rem;
+    cursor:pointer;
+    color:var(--ink);
+    font-weight:600;
+  }
+  .back-btn:hover{ border-color:var(--accent); color:var(--accent); }
+
+  .progress-track{
+    background:var(--line);
+    border-radius:999px;
+    height:8px;
+    overflow:hidden;
+    margin-bottom:18px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--chap-color, var(--accent));
+    width:0%;
+    transition:width .3s ease;
+  }
+
+  .q-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:22px;
+    margin-bottom:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+  }
+  .q-meta{
+    font-size:.75rem;
+    color:var(--muted);
+    margin-bottom:8px;
+    font-weight:700;
+    letter-spacing:.5px;
+  }
+  .q-stem{
+    font-size:1.05rem;
+    font-weight:700;
+    line-height:1.55;
+    margin-bottom:16px;
+    color:var(--ink);
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .opt-btn{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    text-align:right;
+    background:#fbf9f4;
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:.95rem;
+    line-height:1.5;
+    cursor:pointer;
+    color:var(--ink);
+    transition:border-color .15s, background .15s;
+    font-family:inherit;
+    width:100%;
+  }
+  .opt-btn:hover:not(.locked){
+    border-color:var(--chap-color, var(--accent));
+    background:#fff;
+  }
+  .opt-letter{
+    flex:0 0 26px;
+    height:26px;
+    border-radius:50%;
+    background:var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    font-size:.8rem;
+    color:var(--ink);
+  }
+  .opt-text{ flex:1; padding-top:2px; }
+
+  .opt-btn.correct{
+    background:var(--good-bg);
+    border-color:var(--good);
+  }
+  .opt-btn.correct .opt-letter{ background:var(--good); color:#fff; }
+  .opt-btn.wrong{
+    background:var(--bad-bg);
+    border-color:var(--bad);
+  }
+  .opt-btn.wrong .opt-letter{ background:var(--bad); color:#fff; }
+  .opt-btn.locked{ cursor:default; }
+  .opt-btn.dim{ opacity:.55; }
+
+  .feedback{
+    margin-top:14px;
+    padding:10px 14px;
+    border-radius:10px;
+    font-size:.88rem;
+    font-weight:700;
+    display:none;
+  }
+  .feedback.show{ display:block; }
+  .feedback.good{ background:var(--good-bg); color:var(--good); }
+  .feedback.bad{ background:var(--bad-bg); color:var(--bad); }
+
+  .nav-buttons{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:18px;
+  }
+  .nav-btn{
+    flex:1;
+    padding:13px;
+    border-radius:12px;
+    border:none;
+    font-weight:700;
+    font-size:.95rem;
+    cursor:pointer;
+    background:var(--chap-color, var(--accent));
+    color:#fff;
+    transition:opacity .15s;
+  }
+  .nav-btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .nav-btn.secondary{
+    background:var(--paper);
+    color:var(--ink);
+    border:1.5px solid var(--line);
+  }
+
+  .summary-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:30px 22px;
+    text-align:center;
+  }
+  .summary-card h2{ margin:0 0 6px; }
+  .summary-score{
+    font-size:2.6rem;
+    font-weight:800;
+    color:var(--chap-color, var(--accent));
+    margin:10px 0;
+  }
+  .restart-btn{
+    margin-top:14px;
+    padding:12px 24px;
+    border-radius:12px;
+    border:none;
+    background:var(--chap-color, var(--accent));
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    font-size:.95rem;
+  }
+
+  .note-box{
+    background:#fff7e6;
+    border:1px solid #e9d9a8;
+    border-radius:12px;
+    padding:12px 16px;
+    font-size:.78rem;
+    color:#6b5a2a;
+    margin-bottom:16px;
+    line-height:1.6;
+  }
+
+  @media (max-width:480px){
+    .q-card{ padding:16px; }
+    .topbar h1{ font-size:1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🩺 Family Medicine MCQs</h1>
+  <p>تجميعات Formatives 2022–2025 (round D) · أول 47 صفحة</p>
+</div>
+
+<div class="wrap">
+
+  <div class="note-box">
+    ⚠️ ملاحظة: دي بس الأسئلة الفريدة (66 من أصل 200) من أول 47 صفحة في الملف. الباقي من الملف (ENDs, FINALs, formative groups بالتظليل الوردي) لسه ما اتعملش - قولّي لو عايز نكمل عليهم.
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div id="chaptersView">
+    <div class="chapters-nav" id="chaptersNav"></div>
+  </div>
+
+  <div class="quiz-area" id="quizArea">
+    <div class="quiz-header">
+      <button class="back-btn" id="backBtn">→ رجوع للفصول</button>
+      <span id="chapTitle" style="font-weight:800;"></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div id="quizBody"></div>
+  </div>
+
+</div>
+
+<script>
+let QUESTIONS = [];
+
+const CHAPTER_COLORS = {};
+const PALETTE = ["#b3542e","#2f7d5b","#3a6ea5","#a13d6b","#9c7a1f","#446b3e","#7d4a9c","#bf5b3f","#2e7d8c","#946b2d","#5a6b9c","#a14444","#3f8c6b","#8c6b3f","#6b3f8c","#3f6b8c","#8c3f6b","#6b8c3f","#b38f2e","#3f8c3f"];
+
+const STATE = { chapter:null, idx:0, score:0, answered:[] };
+
+async function loadData(){
+  const res = await fetch('questions_data.json');
+  QUESTIONS = await res.json();
+  init();
+}
+
+function init(){
+  const chapters = [...new Set(QUESTIONS.map(q=>q.chapter))];
+  chapters.forEach((ch,i)=>{ CHAPTER_COLORS[ch] = PALETTE[i % PALETTE.length]; });
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-pill">📚 <b>${QUESTIONS.length}</b> سؤال</div>
+    <div class="stat-pill">🗂️ <b>${chapters.length}</b> فصل</div>
+  `;
+
+  const nav = document.getElementById('chaptersNav');
+  nav.innerHTML = chapters.map(ch=>{
+    const count = QUESTIONS.filter(q=>q.chapter===ch).length;
+    const color = CHAPTER_COLORS[ch];
+    return `<div class="chap-card" style="--chap-color:${color}" onclick="openChapter('${escapeAttr(ch)}')">
+      <div class="chap-name">${ch}</div>
+      <div class="chap-count">${count} سؤال</div>
+    </div>`;
+  }).join('');
+}
+
+function escapeAttr(s){ return s.replace(/'/g, "\\'"); }
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.innerText = s;
+  return d.innerHTML;
+}
+
+function openChapter(ch){
+  STATE.chapter = ch;
+  STATE.idx = 0;
+  STATE.score = 0;
+  STATE.questions = QUESTIONS.filter(q=>q.chapter===ch);
+  STATE.answered = new Array(STATE.questions.length).fill(null);
+
+  document.getElementById('chaptersView').style.display='none';
+  document.getElementById('quizArea').classList.add('visible');
+  document.getElementById('chapTitle').textContent = ch;
+  document.documentElement.style.setProperty('--chap-color', CHAPTER_COLORS[ch]);
+
+  renderQuestion();
+}
+
+function closeChapter(){
+  document.getElementById('chaptersView').style.display='block';
+  document.getElementById('quizArea').classList.remove('visible');
+}
+
+function renderQuestion(){
+  const body = document.getElementById('quizBody');
+  const total = STATE.questions.length;
+
+  if(STATE.idx >= total){
+    renderSummary();
+    return;
+  }
+
+  const q = STATE.questions[STATE.idx];
+  const color = CHAPTER_COLORS[STATE.chapter];
+  const already = STATE.answered[STATE.idx];
+
+  document.getElementById('progressFill').style.width = `${(STATE.idx/total)*100}%`;
+
+  body.innerHTML = `
+    <div class="q-card" style="--chap-color:${color}">
+      <div class="q-meta">سؤال ${STATE.idx+1} من ${total}</div>
+      <div class="q-stem">${escapeHtml(q.stem)}</div>
+      <div class="options" id="optionsBox">
+        ${q.options.map(o=>`
+          <button class="opt-btn" data-letter="${o.letter}" onclick="selectOption('${o.letter}')">
+            <span class="opt-letter">${o.letter}</span>
+            <span class="opt-text">${escapeHtml(o.text)}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="feedback" id="feedbackBox"></div>
+    </div>
+    <div class="nav-buttons">
+      <button class="nav-btn secondary" id="prevBtn" onclick="prevQuestion()" ${STATE.idx===0?'disabled':''}>السابق</button>
+      <button class="nav-btn" id="nextBtn" onclick="nextQuestion()" ${already===null?'disabled':''}>${STATE.idx===total-1?'النتيجة النهائية':'التالي'}</button>
+    </div>
+  `;
+
+  if(already !== null){
+    lockOptions(q, already);
+  }
+}
+
+function selectOption(letter){
+  const q = STATE.questions[STATE.idx];
+  if(STATE.answered[STATE.idx] !== null) return;
+
+  STATE.answered[STATE.idx] = letter;
+  if(letter === q.correct) STATE.score++;
+
+  lockOptions(q, letter);
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function lockOptions(q, chosenLetter){
+  const buttons = document.querySelectorAll('#optionsBox .opt-btn');
+  buttons.forEach(btn=>{
+    btn.classList.add('locked');
+    const letter = btn.dataset.letter;
+    if(letter === q.correct){
+      btn.classList.add('correct');
+    } else if(letter === chosenLetter){
+      btn.classList.add('wrong');
+    } else {
+      btn.classList.add('dim');
+    }
+  });
+
+  const fb = document.getElementById('feedbackBox');
+  fb.classList.add('show');
+  if(chosenLetter === q.correct){
+    fb.classList.add('good');
+    fb.textContent = '✅ إجابة صحيحة!';
+  } else {
+    fb.classList.add('bad');
+    const correctOpt = q.options.find(o=>o.letter===q.correct);
+    fb.textContent = `❌ غلط. الإجابة الصحيحة: ${q.correct}) ${correctOpt.text}`;
+  }
+}
+
+function nextQuestion(){
+  STATE.idx++;
+  renderQuestion();
+}
+function prevQuestion(){
+  STATE.idx--;
+  renderQuestion();
+}
+
+function renderSummary(){
+  const total = STATE.questions.length;
+  const pct = Math.round((STATE.score/total)*100);
+  const color = CHAPTER_COLORS[STATE.chapter];
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('quizBody').innerHTML = `
+    <div class="summary-card" style="--chap-color:${color}">
+      <h2>خلصت الفصل! 🎉</h2>
+      <div class="summary-score">${STATE.score} / ${total}</div>
+      <p style="color:var(--muted)">نسبة الصحة: ${pct}%</p>
+      <button class="restart-btn" onclick="openChapter('${escapeAttr(STATE.chapter)}')">إعادة الفصل</button>
+    </div>
+  `;
+}
+
+document.getElementById('backBtn').addEventListener('click', closeChapter);
+
+loadData();
+</script>
+
+</body>
+</html>
